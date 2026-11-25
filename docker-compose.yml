@@ -4,7 +4,7 @@
 # The port is bound to 127.0.0.1 only; put nginx (deploy/nginx.conf) in front.
 services:
   sealdrop:
-    image: ${SEALDROP_IMAGE:-ghcr.io/your-org/sealdrop:latest}
+    image: ${SEALDROP_IMAGE:-ghcr.io/unabomber/secureshare:latest}
     build: .
     restart: unless-stopped
     ports:
