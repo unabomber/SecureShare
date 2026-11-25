@@ -20,7 +20,7 @@ docker compose pull && docker compose up -d      # published image
 # or: docker compose up -d --build               # build from source
 ```
 
-The container listens on `127.0.0.1:8080` only. Put nginx in front of it:
+The container is published on `127.0.0.1:8480` only (change with `HOST_PORT`; the app itself listens on 8080 inside the container). Put nginx in front of it:
 
 ```bash
 sudo cp deploy/nginx.conf /etc/nginx/conf.d/sealdrop.conf
