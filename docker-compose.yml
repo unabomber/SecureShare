@@ -1,0 +1,39 @@
+# Pull the published image:   docker compose pull && docker compose up -d
+# Or build locally:           docker compose up -d --build
+#
+# The port is bound to 127.0.0.1 only; put nginx (deploy/nginx.conf) in front.
+services:
+  sealdrop:
+    image: ${SEALDROP_IMAGE:-ghcr.io/your-org/sealdrop:latest}
+    build: .
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:${HOST_PORT:-8080}:8080"
+    environment:
+      PORT: "8080"
+      DB_PATH: /data/sealdrop.db
+      # nginx sets X-Real-IP; the app trusts this header ONLY because the port
+      # is bound to loopback. Clear it if you expose the container directly.
+      CLIENT_IP_HEADER: ${CLIENT_IP_HEADER:-x-real-ip}
+      POW_BITS: ${POW_BITS:-17}
+      MAX_SECRET_BYTES: ${MAX_SECRET_BYTES:-8192}
+      MAX_DROPS: ${MAX_DROPS:-20000}
+    volumes:
+      - sealdrop-data:/data
+    read_only: true
+    tmpfs:
+      - /tmp
+    cap_drop: [ALL]
+    security_opt:
+      - no-new-privileges:true
+    mem_limit: 128m
+    pids_limit: 64
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:8080/healthz').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 5s
+
+volumes:
+  sealdrop-data:
